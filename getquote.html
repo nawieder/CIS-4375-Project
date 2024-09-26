@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get a Quote - Blue Rhyno Fencing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('images/pic01.jpg');
+            background-size: cover; /* Ensure the image covers the entire background */
+            background-position: center; /* Center the background image */
+            background-repeat: no-repeat; /* Prevent the background from repeating */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* Add a slightly transparent background to make the form readable */
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            width: 50%;
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="email"], input[type="number"], input[type="file"], select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .radio-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+        input[type="radio"] {
+            margin-right: 5px;
+        }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .home-button {
+            background-color: #1d2024;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .home-button:hover {
+            background-color: #222529;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+     <!-- Header -->
+     <header id="header">
+        <div class="home-button">
+            <nav id="nav">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li class="current_page_item"><a href="getquote.html">Get a Quote</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <h2>Get a Quote</h2>
+    <form id="quoteForm">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="phone">Phone Number:</label>
+            <input type="text" id="phone" name="phone" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email Address:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="address">Location:</label>
+            <input type="text" id="address1" name="address1" placeholder="Address 1" required>
+            <input type="text" id="address2" name="address2" placeholder="Address 2">
+            <input type="text" id="city" name="city" placeholder="City" required>
+            <input type="text" id="state" name="state" placeholder="State" required>
+            <input type="text" id="zipcode" name="zipcode" placeholder="Zip Code" required>
+        </div>
+        <div class="form-group">
+            <label>Do you have HOA approval?</label>
+            <div class="radio-group">
+                <label><input type="radio" name="hoaApproval" value="Yes" required> Yes</label>
+                <label><input type="radio" name="hoaApproval" value="No" required> No</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="photos">Upload Photos of the Plot:</label>
+            <input type="file" id="photos" name="photos" multiple>
+        </div>
+        <div class="form-group">
+            <label for="material">Choose the Type of Material:</label>
+            <select id="material" name="material" required>
+                <option value="wood">Wood</option>
+                <option value="vinyl">Vinyl</option>
+                <option value="metal">Metal</option>
+                <option value="chainlink">Chain Link</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="fenceLength">Approximate Length of the Fence (in meters):</label>
+            <input type="number" id="fenceLength" name="fenceLength" min="1" step="1" required>
+        </div>
+        <button type="submit" class="button">Ask for a Quote</button>
+    </form>
+</div>
+
+</body>
+</html>
