@@ -1,18 +1,36 @@
+const express = require('express');
 const mysql = require('mysql2');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 
-// Set up the database connection with MySQL for Blue Ryno Fence
-const connection = mysql.createConnection({
-  host: 'localhost',  // MySQL is running on your computer (localhost)
-  user: 'root',       // The default MySQL user is 'root'
-  password: 'admin123',  // Use the password you set during installation
-  database: 'blue_ryno_fence_db'  // This is the name of the database we'll create
+const app = express();
+const port = 3001;  // Define the port
+
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
+
+// MySQL connection
+const db = mysql.createConnection({
+  host: 'bluerynodb.cj02o08agyaa.us-east-2.rds.amazonaws.com',
+  user: 'admin',
+  password: 'admin123',
+  database: 'BlueRynoProjectDB',
 });
 
-// Establish the connection and handle any errors
-connection.connect((err) => {
-  if (err) {
-    console.error('Database connection failed for Blue Ryno Fence:', err.stack);
-    return;
-  }
-  console.log('Connected to the Blue Ryno Fence database.');
+// Check connection
+db.connect((err) => {
+  if (err) throw err;
+  console.log('Connected to MySQL Database');
 });
+
+// Basic route
+app.get('/', (req, res) => {
+  res.send('API is working');
+});
+
+// Start server and print clickable link
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
+
