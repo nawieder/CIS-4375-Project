@@ -5,6 +5,7 @@ const cors = require('cors');
 
 // Import Routes
 const jobPositionRoutes = require('./routes/jobPositionRoutes');
+const vendorRoutes = require('./routes/vendorRoutes');
 
 const app = express();
 const port = 3001;  // Define the port
@@ -34,6 +35,7 @@ app.get('/', (req, res) => {
 
 // Use Routes
 app.use('/positions', jobPositionRoutes);  // Add job positions routes under the /positions path
+app.use('/vendors', vendorRoutes);   //Vendor Routes
 
 // Start server and print clickable link
 app.listen(port, () => {
