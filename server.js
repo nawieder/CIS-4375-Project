@@ -3,6 +3,9 @@ const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
+// Import Routes
+const jobPositionRoutes = require('./routes/jobPositionRoutes');
+
 const app = express();
 const port = 3001;  // Define the port
 
@@ -28,6 +31,9 @@ db.connect((err) => {
 app.get('/', (req, res) => {
   res.send('API is working');
 });
+
+// Use Routes
+app.use('/positions', jobPositionRoutes);  // Add job positions routes under the /positions path
 
 // Start server and print clickable link
 app.listen(port, () => {
