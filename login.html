@@ -1,0 +1,139 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Admin Login - Blue Rhyno Fencing</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .input-group input[type="text"],
+        .input-group input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #51b1ea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .login-btn:hover {
+            background-color: #4297d3;
+        }
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .links {
+            text-align: center;
+            margin-top: 15px;
+        }
+        .links a {
+            color: #51b1ea;
+            text-decoration: none;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <script>
+        function validateForm(event) {
+            event.preventDefault(); // Prevent form submission
+
+            // Get the input values
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Check if the username and password match the required credentials
+            if (username === 'username@gmail.com' && password === 'Password123') {
+                // Redirect to admin_login.html if the credentials are correct
+                window.location.href = 'admin_login.html';
+            } else {
+                // Show an error message if the credentials are incorrect
+                const errorMessage = document.getElementById('error-message');
+                errorMessage.textContent = 'Invalid username or password.';
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="header-wrapper">
+        <div class="container">
+            <!-- Header -->
+            <header id="header">
+                <div class="inner">
+                    <!-- Logo -->
+                    <h1><a href="index.html" id="logo">Blue Rhyno</a></h1>
+
+                    <!-- Nav -->
+                    <nav id="nav">
+                        <ul>
+                            <li><a href="index.html">Home</a></li>
+                            <!-- Add other navigation items as needed -->
+                        </ul>
+                    </nav>
+                </div>
+            </header>
+        </div>
+    </div>
+
+    <div class="login-container">
+        <h2>Admin Login</h2>
+
+        <!-- Login Form -->
+        <form onsubmit="validateForm(event)">
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required />
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required />
+            </div>
+
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+
+        <!-- Error message -->
+        <div id="error-message" class="error-message"></div>
+
+        <!-- Additional Links -->
+        <div class="links">
+            <a href="#">Forgot Password?</a><br />
+            <a href="#">Forgot Username?</a>
+        </div>
+    </div>
+</body>
+</html>
