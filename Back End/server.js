@@ -8,6 +8,10 @@ const jobPositionRoutes = require('./routes/jobPositionRoutes');
 const vendorRoutes = require('./routes/vendorRoutes');
 const customerRoutes = require('./routes/customerRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
+const inventoryRoutes = require('./routes/inventoryRoutes');
+const quotesRoutes = require('./routes/quotesRoutes');
+const feedbackRoutes = require('./routes/feedbackRoutes');
+const payrollRoutes = require('./routes/payrollRoutes');
 
 const app = express();
 const port = 3001;  // Define the port
@@ -40,6 +44,10 @@ app.use('/positions', jobPositionRoutes);  // Add job positions routes under the
 app.use('/vendors', vendorRoutes);         // Vendor Routes
 app.use('/customers', customerRoutes);     // Customers routes
 app.use('/employees', employeeRoutes);     // Employees routes
+app.use('/inventory', inventoryRoutes);    // Inventory routes
+app.use('/quotes', quotesRoutes);          // Quotes routes
+app.use('/feedback', feedbackRoutes);      // Feedback routes
+app.use('/payroll', payrollRoutes);       // Payroll Routes
 
 // Start server and print clickable link
 app.listen(port, () => {

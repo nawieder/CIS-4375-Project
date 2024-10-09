@@ -1,0 +1,70 @@
+// Back End/controllers/feedbackController.js
+const db = require('../config/db');
+
+// GET all feedback
+exports.getAllFeedback = (req, res) => {
+  const sql = 'SELECT * FROM Feedback';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching feedback:', err);
+      return res.status(500).send('Error fetching feedback');
+    }
+    res.json(results);
+  });
+};
+
+// GET specific feedback by FeedbackID
+exports.getFeedbackById = (req, res) => {
+  const feedbackId = req.params.id;
+  const sql = 'SELECT * FROM Feedback WHERE FeedbackID = ?';
+  db.query(sql, [feedbackId], (err, result) => {
+    if (err) {
+      console.error('Error fetching feedback:', err);
+      return res.status(500).send('Error fetching feedback');
+    }
+    res.json(result[0]);
+  });
+};
+
+// POST new feedback
+exports.createFeedback = (req, res) => {
+  const newFeedback = req.body;
+  const sql = 'INSERT INTO Feedback SET ?';
+  db.query(sql, newFeedback, (err, result) => {
+    if (err) {
+      console.error('Error adding feedback:', err);
+      return res.status(500).send('Error adding feedback');
+    }
+    res.json({ message: 'Feedback added', feedbackId: result.insertId });
+  });
+};
+
+// PUT to update feedback (e.g., modify rating or comment)
+exports.updateFeedback = (req, res) => {
+  const feedbackId = req.params.id;
+  const updatedFeedback = req.body;
+  const sql = 'UPDATE Feedback SET ? WHERE FeedbackID = ?';
+  db.query(sql, [updatedFeedback, feedbackId], (err, result) => {
+    if (err) {
+      console.error('Error updating feedback:', err);
+      return res.status(500).send('Error updating feedback');
+    }
+    res.json({ message: 'Feedback updated' });
+  });
+};
+
+// DELETE feedback by FeedbackID
+exports.deleteFeedback = (req, res) => {
+  const feedbackId = req.params.id;
+  const sql = 'DELETE FROM Feedback WHERE FeedbackID = ?';
+  db.query(sql, [feedbackId], (err, result) => {
+    if (err) {
+      console.error('Error deleting feedback:', err);
+      return res.status(500).send('Error deleting feedback');
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).send('Feedback not found');
+    }
+    res.send('Feedback deleted');
+  });
+};
