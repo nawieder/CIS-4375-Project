@@ -22,14 +22,25 @@ exports.getFeedbackById = (req, res) => {
       console.error('Error fetching feedback:', err);
       return res.status(500).send('Error fetching feedback');
     }
+    if (result.length === 0) {
+      return res.status(404).send('Feedback not found');
+    }
     res.json(result[0]);
   });
 };
 
 // POST new feedback
 exports.createFeedback = (req, res) => {
-  const newFeedback = req.body;
+  const { CustomerID, ProjectID, Rating, Comments } = req.body;
+  const FeedbackDate = req.body.FeedbackDate || new Date().toISOString().split('T')[0]; // Use today's date if not provided
+
+  if (!CustomerID || !ProjectID || !Rating) {
+    return res.status(400).send('Missing required fields');
+  }
+
+  const newFeedback = { CustomerID, ProjectID, FeedbackDate, Rating, Comments };
   const sql = 'INSERT INTO Feedback SET ?';
+  
   db.query(sql, newFeedback, (err, result) => {
     if (err) {
       console.error('Error adding feedback:', err);
@@ -39,15 +50,29 @@ exports.createFeedback = (req, res) => {
   });
 };
 
-// PUT to update feedback (e.g., modify rating or comment)
+
+// PUT to update feedback (e.g., modify rating or comments)
 exports.updateFeedback = (req, res) => {
   const feedbackId = req.params.id;
-  const updatedFeedback = req.body;
+  const { Rating, Comments } = req.body;
+
+  if (!Rating && !Comments) {
+    return res.status(400).send('No fields to update');
+  }
+
+  const updatedFeedback = {};
+  if (Rating) updatedFeedback.Rating = Rating;
+  if (Comments) updatedFeedback.Comments = Comments;
+
   const sql = 'UPDATE Feedback SET ? WHERE FeedbackID = ?';
+  
   db.query(sql, [updatedFeedback, feedbackId], (err, result) => {
     if (err) {
       console.error('Error updating feedback:', err);
       return res.status(500).send('Error updating feedback');
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).send('Feedback not found');
     }
     res.json({ message: 'Feedback updated' });
   });
@@ -57,6 +82,7 @@ exports.updateFeedback = (req, res) => {
 exports.deleteFeedback = (req, res) => {
   const feedbackId = req.params.id;
   const sql = 'DELETE FROM Feedback WHERE FeedbackID = ?';
+
   db.query(sql, [feedbackId], (err, result) => {
     if (err) {
       console.error('Error deleting feedback:', err);
@@ -68,3 +94,4 @@ exports.deleteFeedback = (req, res) => {
     res.send('Feedback deleted');
   });
 };
+

@@ -55,7 +55,6 @@ exports.createCustomer = (req, res) => {
   });
 };
 
-
 // PUT to update a customer's information
 exports.updateCustomer = (req, res) => {
   const customerId = req.params.id;
@@ -117,3 +116,4 @@ exports.deleteCustomer = (req, res) => {
     });
   });
 };
+

@@ -28,16 +28,31 @@ exports.getInventoryById = (req, res) => {
 
 // POST a new inventory item
 exports.createInventoryItem = (req, res) => {
-  const newItem = req.body;
-  const sql = 'INSERT INTO Inventory SET ?';
-  db.query(sql, newItem, (err, result) => {
-    if (err) {
-      console.error('Error adding inventory item:', err);
-      return res.status(500).send('Error adding inventory item');
+  const { ItemName, Description, QuantityInStock, PricePerUnit, VendorID } = req.body;
+
+  // First, check if the VendorID exists
+  const checkVendorSql = 'SELECT * FROM Vendors WHERE VendorID = ?';
+  db.query(checkVendorSql, [VendorID], (vendorErr, vendorResult) => {
+    if (vendorErr) {
+      console.error('Error checking VendorID:', vendorErr);
+      return res.status(500).send('Error checking vendor');
     }
-    res.json({ message: 'Inventory item created', itemId: result.insertId });
+    if (vendorResult.length === 0) {
+      return res.status(400).send('VendorID does not exist');
+    }
+
+    // Proceed to insert inventory item if VendorID exists
+    const insertSql = 'INSERT INTO Inventory (ItemName, Description, QuantityInStock, PricePerUnit, VendorID) VALUES (?, ?, ?, ?, ?)';
+    db.query(insertSql, [ItemName, Description, QuantityInStock, PricePerUnit, VendorID], (err, result) => {
+      if (err) {
+        console.error('Error adding inventory item:', err);
+        return res.status(500).send('Error adding inventory item');
+      }
+      res.json({ message: 'Inventory item created', itemId: result.insertId });
+    });
   });
 };
+
 
 // PUT to update an inventory item
 exports.updateInventoryItem = (req, res) => {
