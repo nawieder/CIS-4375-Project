@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    
-    <title>New Invoices - Blue Rhyno</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <link rel="stylesheet" href="assets/css/main.css" />
-    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Blue Rhyno</title>
+    <link rel="stylesheet" href="assets/css/main.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -69,30 +67,6 @@
         .links a:hover {
             text-decoration: underline;
         }
-        .container {
-            width: 80%;
-            margin: 0 auto;
-            padding-top: 50px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 12px;
-            text-align: center;
-        }
-        th {
-            background-color: #f4f4f4;
-            font-weight: bold; /* Make table headers bold */
-        }
-        td {
-            background-color: white; /* Set table body background to white */
-        }
     </style>
 </head>
 <body>
@@ -108,7 +82,7 @@
                     <nav id="nav">
                         <ul>
                             <li><a href="index.html">Home</a></li>
-                            <li><a href="admin_login.html">Back</a></li>
+                            <!-- Add other navigation items as needed -->
                         </ul>
                     </nav>
                 </div>
@@ -116,39 +90,11 @@
         </div>
     </div>
     <div class="container">
-        <h2>New Invoices</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Invoice ID</th>
-                    <th>Customer ID</th>
-                    <th>Employee ID</th>
-                    <th>Quote Date</th>
-                    <th>End Date</th>
-                    <th>Total Amount</th>
-                    <th>Project Total Cost</th>
-                    <th>Status</th>
-                    <th>Payment Status</th>
-                    <th>Payment Method</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for invoice in invoices %}
-                <tr>
-                    <td>{{ invoice[0] }}</td>
-                    <td>{{ invoice[1] }}</td>
-                    <td>{{ invoice[2] }}</td>
-                    <td>{{ invoice[3] }}</td>
-                    <td>{{ invoice[4] }}</td>
-                    <td>{{ invoice[5] }}</td>
-                    <td>{{ invoice[6] }}</td>
-                    <td>{{ invoice[7] }}</td>
-                    <td>{{ invoice[8] }}</td>
-                    <td>{{ invoice[9] }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <h2>Welcome Admin</h2>
+        <div class='links'>
+            <button onclick="window.location.href='active_jobs.html'">Active Jobs</button>
+            <button onclick="window.location.href='completed_jobs.html'">Completed Jobs</button>
+        </div>
     </div>
 </body>
 </html>
