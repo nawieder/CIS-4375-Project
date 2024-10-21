@@ -12,6 +12,7 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 const quotesRoutes = require('./routes/quotesRoutes');
 const feedbackRoutes = require('./routes/feedbackRoutes');
 const payrollRoutes = require('./routes/payrollRoutes');
+const jobStatusRoutes = require('./routes/jobStatusRoutes');
 
 const app = express();
 const port = 3001;  // Define the port
@@ -47,7 +48,9 @@ app.use('/employees', employeeRoutes);     // Employees routes
 app.use('/inventory', inventoryRoutes);    // Inventory routes
 app.use('/quotes', quotesRoutes);          // Quotes routes
 app.use('/feedback', feedbackRoutes);      // Feedback routes
-app.use('/payroll', payrollRoutes);       // Payroll Routes
+app.use('/payroll', payrollRoutes);        // Payroll Routes
+app.use('jobStatus', jobStatusRoutes);     // Job Status Routes
+
 
 // Start server and print clickable link
 app.listen(port, () => {
