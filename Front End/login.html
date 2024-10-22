@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Login - Blue Rhyno Fencing</title>
+    <title>Login - Blue Ryno Fencing</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="stylesheet" href="assets/css/main.css" />
@@ -71,11 +71,9 @@
     <script>
         function validateForm(event) {
             event.preventDefault(); // Prevent form submission
-
             // Get the input values
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-
             // Check if the username and password match the required credentials
             if (username === 'username@gmail.com' && password === 'Password123') {
                 // Redirect to admin_login.html if the credentials are correct
@@ -95,8 +93,7 @@
             <header id="header">
                 <div class="inner">
                     <!-- Logo -->
-                    <h1><a href="index.html" id="logo">Blue Rhyno</a></h1>
-
+                    <h1><a href="index.html" id="logo">Blue Ryno</a></h1>
                     <!-- Nav -->
                     <nav id="nav">
                         <ul>
@@ -108,10 +105,8 @@
             </header>
         </div>
     </div>
-
     <div class="login-container">
         <h2>Admin Login</h2>
-
         <!-- Login Form -->
         <form onsubmit="validateForm(event)">
             <div class="input-group">
@@ -122,13 +117,10 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required />
             </div>
-
             <button type="submit" class="login-btn">Login</button>
         </form>
-
         <!-- Error message -->
         <div id="error-message" class="error-message"></div>
-
         <!-- Additional Links -->
         <div class="links">
             <a href="#">Forgot Password?</a><br />
