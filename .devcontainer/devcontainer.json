@@ -4,7 +4,8 @@
   "extensions": [
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
-    "ritwickdey.LiveServer"
+    "ritwickdey.LiveServer",
+    "eg2.vscode-npm-script"
   ],
   "postCreateCommand": "npm install"
 }
