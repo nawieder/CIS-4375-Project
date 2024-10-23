@@ -84,36 +84,62 @@ exports.deleteCustomer = (req, res) => {
       return res.status(500).send('Error deleting feedback records');
     }
 
-    // Step 2: Delete related quotes records
-    const deleteQuotes = 'DELETE FROM Quotes WHERE CustomerID = ?';
-    db.query(deleteQuotes, [customerId], (err) => {
+    // Step 2: Delete related payment records
+    const deletePayments = 'DELETE FROM Payments WHERE InvoiceID IN (SELECT InvoiceID FROM Invoice WHERE QuoteID IN (SELECT QuoteID FROM Quotes WHERE CustomerID = ?))';
+    db.query(deletePayments, [customerId], (err) => {
       if (err) {
-        console.error('Error deleting quotes:', err);
-        return res.status(500).send('Error deleting quotes');
+        console.error('Error deleting payments:', err);
+        return res.status(500).send('Error deleting payments');
       }
 
-      // Step 3: Delete related project details records
-      const deleteProjectDetails = 'DELETE FROM ProjectDetails WHERE CustomerID = ?';
-      db.query(deleteProjectDetails, [customerId], (err) => {
+      // Step 3: Delete related project records
+      const deleteProjects = 'DELETE FROM Projects WHERE QuoteID IN (SELECT QuoteID FROM Quotes WHERE CustomerID = ?)';
+      db.query(deleteProjects, [customerId], (err) => {
         if (err) {
-          console.error('Error deleting project details:', err);
-          return res.status(500).send('Error deleting project details');
+          console.error('Error deleting projects:', err);
+          return res.status(500).send('Error deleting projects');
         }
 
-        // Step 4: Finally, delete the customer
-        const deleteCustomer = 'DELETE FROM Customer WHERE CustomerID = ?';
-        db.query(deleteCustomer, [customerId], (err, result) => {
+        // Step 4: Delete related invoice records
+        const deleteInvoices = 'DELETE FROM Invoice WHERE QuoteID IN (SELECT QuoteID FROM Quotes WHERE CustomerID = ?)';
+        db.query(deleteInvoices, [customerId], (err) => {
           if (err) {
-            console.error('Error deleting customer:', err);
-            return res.status(500).send('Error deleting customer');
+            console.error('Error deleting invoices:', err);
+            return res.status(500).send('Error deleting invoices');
           }
-          if (result.affectedRows === 0) {
-            return res.status(404).send('Customer not found');
-          }
-          res.send('Customer and associated feedback, quotes, and project details deleted');
+
+          // Step 5: Delete related quote records
+          const deleteQuotes = 'DELETE FROM Quotes WHERE CustomerID = ?';
+          db.query(deleteQuotes, [customerId], (err) => {
+            if (err) {
+              console.error('Error deleting quotes:', err);
+              return res.status(500).send('Error deleting quotes');
+            }
+
+            // Step 6: Delete related password records (added this step)
+            const deletePasswords = 'DELETE FROM Passwords WHERE CustomerID = ?';
+            db.query(deletePasswords, [customerId], (err) => {
+              if (err) {
+                console.error('Error deleting passwords:', err);
+                return res.status(500).send('Error deleting passwords');
+              }
+
+              // Step 7: Finally, delete the customer
+              const deleteCustomer = 'DELETE FROM Customer WHERE CustomerID = ?';
+              db.query(deleteCustomer, [customerId], (err, result) => {
+                if (err) {
+                  console.error('Error deleting customer:', err);
+                  return res.status(500).send('Error deleting customer');
+                }
+                if (result.affectedRows === 0) {
+                  return res.status(404).send('Customer not found');
+                }
+                res.send('Customer and associated feedback, payments, projects, invoices, quotes, and passwords deleted');
+              });
+            });
+          });
         });
       });
     });
   });
 };
-
