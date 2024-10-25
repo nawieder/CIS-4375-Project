@@ -30,17 +30,15 @@ exports.getQuoteById = (req, res) => {
 
 // POST a new quote
 exports.createQuote = (req, res) => {
-  const { CustomerID, EmployeeID, QuoteDate, TotalAmount, Status, PaymentStatus, PaymentMethod, EndDate, ProjectTotalCost } = req.body;
+  const { CustomerID, QuoteDate, TotalAmount, Status, EmailSent, Completed } = req.body;
 
   // Ensure all required fields are included
-  if (!CustomerID || !EmployeeID || !QuoteDate || !TotalAmount || !Status || !PaymentStatus) {
+  if (!CustomerID || !QuoteDate || !TotalAmount || !Status || EmailSent === undefined || Completed === undefined) {
     return res.status(400).send('Missing required fields');
   }
 
-  // Check if CustomerID and EmployeeID exist in their respective tables
+  // Check if CustomerID exists
   const checkCustomerSql = 'SELECT * FROM Customer WHERE CustomerID = ?';
-  const checkEmployeeSql = 'SELECT * FROM Employee WHERE EmployeeID = ?';
-
   db.query(checkCustomerSql, [CustomerID], (customerErr, customerResult) => {
     if (customerErr) {
       console.error('Error checking CustomerID:', customerErr);
@@ -50,39 +48,34 @@ exports.createQuote = (req, res) => {
       return res.status(400).send('CustomerID does not exist');
     }
 
-    db.query(checkEmployeeSql, [EmployeeID], (employeeErr, employeeResult) => {
-      if (employeeErr) {
-        console.error('Error checking EmployeeID:', employeeErr);
-        return res.status(500).send('Error checking employee');
-      }
-      if (employeeResult.length === 0) {
-        return res.status(400).send('EmployeeID does not exist');
-      }
+    // Proceed to insert the new quote if CustomerID exists
+    const newQuote = { CustomerID, QuoteDate, TotalAmount, Status, EmailSent, Completed };
+    const sql = 'INSERT INTO Quotes SET ?';
 
-      // Proceed to insert the new quote if both CustomerID and EmployeeID exist
-      const newQuote = { CustomerID, EmployeeID, QuoteDate, TotalAmount, Status, PaymentStatus, PaymentMethod, EndDate, ProjectTotalCost };
-      const sql = 'INSERT INTO Quotes SET ?';
-
-      db.query(sql, newQuote, (err, result) => {
-        if (err) {
-          console.error('Error creating quote:', err);
-          return res.status(500).send('Error creating quote');
-        }
-        res.json({ message: 'Quote created', quoteId: result.insertId });
-      });
+    db.query(sql, newQuote, (err, result) => {
+      if (err) {
+        console.error('Error creating quote:', err);
+        return res.status(500).send('Error creating quote');
+      }
+      res.json({ message: 'Quote created', quoteId: result.insertId });
     });
   });
 };
 
+
+
 // PUT to update a quote (e.g., status, payment info)
 exports.updateQuote = (req, res) => {
   const quoteId = req.params.id;
-  const { Status, PaymentStatus, PaymentMethod, EndDate, ProjectTotalCost, TotalAmount } = req.body;
+  const { Status, TotalAmount } = req.body;
 
-  const updatedQuote = { Status, PaymentStatus, PaymentMethod, EndDate, ProjectTotalCost, TotalAmount };
-  const sql = 'UPDATE Quotes SET ? WHERE QuoteID = ?';
+  // Ensure required fields are present
+  if (!TotalAmount || !Status) {
+    return res.status(400).send('Missing required fields');
+  }
 
-  db.query(sql, [updatedQuote, quoteId], (err, result) => {
+  const sql = 'UPDATE Quotes SET `Status` = ?, `TotalAmount` = ? WHERE QuoteID = ?';
+  db.query(sql, [Status, TotalAmount, quoteId], (err, result) => {
     if (err) {
       console.error('Error updating quote:', err);
       return res.status(500).send('Error updating quote');
@@ -90,34 +83,64 @@ exports.updateQuote = (req, res) => {
     if (result.affectedRows === 0) {
       return res.status(404).send('Quote not found');
     }
-    res.json({ message: 'Quote updated' });
+    res.send('Quote updated');
   });
 };
 
-// DELETE a quote by QuoteID
+
+
+
+// DELETE a quote by QuoteID (with invoice and payment deletion)
+// DELETE a quote by QuoteID and associated projects, invoices, and payments
 exports.deleteQuote = (req, res) => {
   const quoteId = req.params.id;
 
-  // Delete associated feedback entries first
-  const deleteFeedbackSql = 'DELETE FROM Feedback WHERE ProjectID = ?';
-  db.query(deleteFeedbackSql, [quoteId], (feedbackErr, feedbackResult) => {
-    if (feedbackErr) {
-      console.error('Error deleting related feedback:', feedbackErr);
-      return res.status(500).send('Error deleting related feedback');
-    }
+  // Promise wrapper for DB queries
+  const queryDb = (sql, params) => {
+    return new Promise((resolve, reject) => {
+      db.query(sql, params, (err, result) => {
+        if (err) return reject(err);
+        resolve(result);
+      });
+    });
+  };
 
-    // Proceed to delete the quote
-    const deleteQuoteSql = 'DELETE FROM Quotes WHERE QuoteID = ?';
-    db.query(deleteQuoteSql, [quoteId], (quoteErr, quoteResult) => {
-      if (quoteErr) {
-        console.error('Error deleting quote:', quoteErr);
-        return res.status(500).send('Error deleting quote');
+  // Start by deleting any associated projects
+  queryDb('DELETE FROM Projects WHERE QuoteID = ?', [quoteId])
+    .then(() => {
+      // Retrieve InvoiceID(s) associated with the QuoteID
+      return queryDb('SELECT InvoiceID FROM Invoice WHERE QuoteID = ?', [quoteId]);
+    })
+    .then((invoiceResult) => {
+      const invoiceIds = invoiceResult.map((row) => row.InvoiceID);
+
+      // If no invoices are found, delete the quote directly
+      if (invoiceIds.length === 0) {
+        return queryDb('DELETE FROM Quotes WHERE QuoteID = ?', [quoteId]);
+      } else {
+        // Delete associated payments first
+        return queryDb('DELETE FROM Payments WHERE InvoiceID IN (?)', [invoiceIds])
+          .then(() => {
+            // Delete invoices after payments
+            return queryDb('DELETE FROM Invoice WHERE QuoteID = ?', [quoteId]);
+          })
+          .then(() => {
+            // Finally, delete the quote
+            return queryDb('DELETE FROM Quotes WHERE QuoteID = ?', [quoteId]);
+          });
       }
-      if (quoteResult.affectedRows === 0) {
+    })
+    .then((result) => {
+      if (result.affectedRows === 0) {
         return res.status(404).send('Quote not found');
       }
-      res.send('Quote and related feedback deleted');
+      res.send('Quote, related projects, invoices, and payments deleted');
+    })
+    .catch((err) => {
+      console.error('Error deleting quote:', err);
+      res.status(500).send('Error deleting quote and related records');
     });
-  });
 };
+
+
 

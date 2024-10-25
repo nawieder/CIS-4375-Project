@@ -58,18 +58,19 @@ exports.updateInvoice = (req, res) => {
   });
 };
 
-// DELETE an invoice by InvoiceID
+// Soft-delete an invoice by setting IsDeleted to true
 exports.deleteInvoice = (req, res) => {
   const invoiceId = req.params.id;
-  const sql = 'DELETE FROM Invoice WHERE InvoiceID = ?';
+  const sql = 'UPDATE Invoice SET IsDeleted = 1 WHERE InvoiceID = ?';
+  
   db.query(sql, [invoiceId], (err, result) => {
     if (err) {
-      console.error('Error deleting invoice:', err);
-      return res.status(500).send('Error deleting invoice');
+      console.error('Error soft-deleting invoice:', err);
+      return res.status(500).send('Error soft-deleting invoice');
     }
     if (result.affectedRows === 0) {
       return res.status(404).send('Invoice not found');
     }
-    res.send('Invoice deleted');
+    res.send('Invoice soft-deleted');
   });
 };

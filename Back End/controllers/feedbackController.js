@@ -31,16 +31,17 @@ exports.getFeedbackById = (req, res) => {
 
 // POST new feedback
 exports.createFeedback = (req, res) => {
-  const { CustomerID, ProjectID, Rating, Comments } = req.body;
+  const { CustomerID, QuoteID, Rating, Comments } = req.body; // Use QuoteID instead of ProjectID
   const FeedbackDate = req.body.FeedbackDate || new Date().toISOString().split('T')[0]; // Use today's date if not provided
 
-  if (!CustomerID || !ProjectID || !Rating) {
+  // Ensure required fields are present
+  if (!CustomerID || !QuoteID || !Rating) {
     return res.status(400).send('Missing required fields');
   }
 
-  const newFeedback = { CustomerID, ProjectID, FeedbackDate, Rating, Comments };
+  const newFeedback = { CustomerID, QuoteID, FeedbackDate, Rating, Comments };
   const sql = 'INSERT INTO Feedback SET ?';
-  
+
   db.query(sql, newFeedback, (err, result) => {
     if (err) {
       console.error('Error adding feedback:', err);
@@ -49,6 +50,7 @@ exports.createFeedback = (req, res) => {
     res.json({ message: 'Feedback added', feedbackId: result.insertId });
   });
 };
+
 
 
 // PUT to update feedback (e.g., modify rating or comments)

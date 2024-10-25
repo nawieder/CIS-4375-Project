@@ -30,12 +30,16 @@ exports.getVendorById = (req, res) => {
 
 // POST a new vendor
 exports.createVendor = (req, res) => {
-  const newVendor = req.body;
-  const sql = 'INSERT INTO Vendors SET ?';
-  db.query(sql, newVendor, (err, result) => {
+  const { VendorName } = req.body;
+  if (!VendorName) {
+    return res.status(400).send('Vendor name is required');
+  }
+
+  const sql = 'INSERT INTO Vendors (VendorName) VALUES (?)';
+  db.query(sql, [VendorName], (err, result) => {
     if (err) {
-      console.error('Error adding vendor:', err);
-      return res.status(500).send('Error adding vendor');
+      console.error('Error creating vendor:', err);
+      return res.status(500).send('Error creating vendor');
     }
     res.json({ message: 'Vendor created', vendorId: result.insertId });
   });
