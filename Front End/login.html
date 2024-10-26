@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="en">
 <head>
     <title>Login - Blue Ryno Fencing</title>
     <meta charset="utf-8" />
@@ -25,6 +25,7 @@
         }
         .input-group {
             margin-bottom: 15px;
+            position: relative; /* Added for positioning the eye icon */
         }
         .input-group label {
             display: block;
@@ -37,6 +38,13 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 14px;
+        }
+        .eye-icon {
+            position: absolute;
+            right: 10px;
+            top: 35%;
+            cursor: pointer;
+            font-size: 20px; /* Increase icon size */
         }
         .login-btn {
             width: 100%;
@@ -67,24 +75,12 @@
         .links a:hover {
             text-decoration: underline;
         }
-    </style>
-    <script>
-        function validateForm(event) {
-            event.preventDefault(); // Prevent form submission
-            // Get the input values
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            // Check if the username and password match the required credentials
-            if (username === 'username@gmail.com' && password === 'Password123') {
-                // Redirect to admin_login.html if the credentials are correct
-                window.location.href = 'admin_dashboard.html';
-            } else {
-                // Show an error message if the credentials are incorrect
-                const errorMessage = document.getElementById('error-message');
-                errorMessage.textContent = 'Invalid username or password.';
-            }
+        .container {
+            width: 60%;
+            margin: 0 auto;
+            padding-top: 50px;
         }
-    </script>
+    </style>
 </head>
 <body>
     <div id="header-wrapper">
@@ -92,13 +88,10 @@
             <!-- Header -->
             <header id="header">
                 <div class="inner">
-                    <!-- Logo -->
                     <h1><a href="index.html" id="logo">Blue Ryno</a></h1>
-                    <!-- Nav -->
                     <nav id="nav">
                         <ul>
                             <li><a href="index.html">Home</a></li>
-                            <!-- Add other navigation items as needed -->
                         </ul>
                     </nav>
                 </div>
@@ -107,8 +100,7 @@
     </div>
     <div class="login-container">
         <h2>Admin Login</h2>
-        <!-- Login Form -->
-        <form onsubmit="validateForm(event)">
+        <form id="loginForm">
             <div class="input-group">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" required />
@@ -116,16 +108,50 @@
             <div class="input-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required />
+                <span class="eye-icon" id="togglePassword" onclick="togglePassword()">
+                    👁️ <!-- Eye icon for visible -->
+                </span>
             </div>
             <button type="submit" class="login-btn">Login</button>
         </form>
-        <!-- Error message -->
         <div id="error-message" class="error-message"></div>
-        <!-- Additional Links -->
-        <div class="links">
-            <a href="#">Forgot Password?</a><br />
-            <a href="#">Forgot Username?</a>
-        </div>
     </div>
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            // Send login data to the server
+            const response = await fetch("http://localhost:3001/passwords/admin", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ username, password }),
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                window.location.href = "admin_dashboard.html"; // Redirect on successful login
+            } else {
+                document.getElementById("error-message").innerText = result.message;
+            }
+        });
+
+        // Function to toggle password visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById("password");
+            const eyeIcon = document.getElementById("togglePassword");
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeIcon.textContent = "🚫"; // Change icon to indicate visible
+            } else {
+                passwordInput.type = "password";
+                eyeIcon.textContent = "👁️"; // Change icon back to hidden
+            }
+        }
+    </script>
 </body>
 </html>

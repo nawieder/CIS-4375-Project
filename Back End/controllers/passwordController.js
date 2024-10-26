@@ -73,3 +73,44 @@ exports.deletePassword = (req, res) => {
     res.send('Password deleted');
   });
 };
+
+
+exports.adminLogin = (req, res) => {
+  const { username, password } = req.body; // Extract username and password from the request body
+
+  // SQL query to find an admin user by username
+  const sql = 'SELECT * FROM Employee WHERE role = "admin"';  
+
+  console.log('Executing SQL:', sql, 'with username:', username); // Debugging log
+
+  // Query the database using the provided username (email)
+  db.query(sql, [username], (err, results) => {
+      if (err) {
+          console.error('Database query error:', err);
+          return res.status(500).send('Error querying database');
+      }
+      
+      console.log('Query results:', results); // Log the results from the database
+
+      const user = results[0]; // Get the first user from results
+      if (!user) {
+          return res.json({ success: false, message: "Invalid username." });
+      }
+
+      // Check if the provided username matches the user's email
+      if (username !== user.email) {
+          return res.json({ success: false, message: "Invalid username." });
+      }
+
+      // Construct the expected password using the retrieved user data
+      const expectedPassword = `${user.name}@${user.phone_number.slice(-4)}`;
+      console.log('Expected password:', expectedPassword); // Log the expected password for debugging
+
+      // Validate the provided password against the expected password
+      if (password === expectedPassword) {
+          res.json({ success: true });
+      } else {
+          res.json({ success: false, message: "Invalid password." });
+      }
+  });
+};

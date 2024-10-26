@@ -7,5 +7,6 @@ router.get('/:id', passwordController.getPasswordByCustomerId);
 router.post('/', passwordController.createPassword);
 router.put('/:id', passwordController.updatePassword);
 router.delete('/:id', passwordController.deletePassword);
+router.post('/admin', passwordController.adminLogin);
 
 module.exports = router;
