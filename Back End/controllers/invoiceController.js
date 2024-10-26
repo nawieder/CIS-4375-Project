@@ -115,19 +115,25 @@ exports.createInvoice = (req, res) => {
 // PUT to update an invoice
 exports.updateInvoice = (req, res) => {
   const invoiceId = req.params.id;
-  const updatedInvoice = req.body;
-  const sql = 'UPDATE Invoice SET ? WHERE InvoiceID = ?';
-  db.query(sql, [updatedInvoice, invoiceId], (err, result) => {
+  const { DueDate, PaidAmount, PaymentStatus, PaymentMethod } = req.body;
+
+  // Construct the SQL query to update specific fields
+  const sql = 'UPDATE Invoice SET DueDate = ?, PaidAmount = ?, PaymentStatus = ?, PaymentMethod = ? WHERE InvoiceID = ?';
+
+  db.query(sql, [DueDate, PaidAmount, PaymentStatus,PaymentMethod, invoiceId], (err, result) => {
     if (err) {
       console.error('Error updating invoice:', err);
       return res.status(500).send('Error updating invoice');
     }
+    
     if (result.affectedRows === 0) {
       return res.status(404).send('Invoice not found');
     }
+    
     res.send('Invoice updated');
   });
 };
+
 
 // Soft-delete an invoice by setting IsDeleted to true
 exports.deleteInvoice = (req, res) => {
