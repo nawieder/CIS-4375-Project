@@ -14,7 +14,23 @@ exports.getAllInvoices = (req, res) => {
 
 // GET all new (completed) invoices
 exports.getAllOldInvoices = (req, res) => {
-  const sql = 'SELECT * FROM Invoice JOIN Quotes ON Invoice.QuoteID = Quotes.QuoteID WHERE Status IN ("Completed")';
+  const sql = `
+  SELECT  
+      i.InvoiceID, 
+      i.QuoteID, 
+      CONCAT(c.FirstName, ' ', c.LastName) AS CustomerName, 
+      CONCAT(c.Address, ', ', c.City, ', ', c.State, ', ', c.ZipCode) AS Address,
+      i.InvoiceDate, 
+      i.DueDate, 
+      i.TotalAmount, 
+      i.PaidAmount, 
+      i.PaymentStatus, 
+      i.PaymentMethod
+  FROM Invoice i
+  JOIN Quotes q ON i.QuoteID = q.QuoteID
+  JOIN Customer c ON q.CustomerID = c.CustomerID 
+  WHERE q.Status IN ("Completed");
+`;
   
   db.query(sql, (err, results) => {
     if (err) {
@@ -33,7 +49,24 @@ exports.getAllOldInvoices = (req, res) => {
 };
 // GET all new (completed) invoices
 exports.getAllNewInvoices = (req, res) => {
-  const sql = 'SELECT * FROM Invoice JOIN Quotes ON Invoice.QuoteID = Quotes.QuoteID WHERE Status NOT IN ("Completed")';
+  const sql = `
+  SELECT  
+      i.InvoiceID, 
+      i.QuoteID, 
+      CONCAT(c.FirstName, ' ', c.LastName) AS CustomerName, 
+      CONCAT(c.Address, ', ', c.City, ', ', c.State, ', ', c.ZipCode) AS Address,
+      i.InvoiceDate, 
+      i.DueDate, 
+      i.TotalAmount, 
+      i.PaidAmount, 
+      i.PaymentStatus, 
+      i.PaymentMethod
+  FROM Invoice i
+  JOIN Quotes q ON i.QuoteID = q.QuoteID
+  JOIN Customer c ON q.CustomerID = c.CustomerID 
+  WHERE q.Status NOT IN ("Completed");
+`;
+
   
   db.query(sql, (err, results) => {
     if (err) {
