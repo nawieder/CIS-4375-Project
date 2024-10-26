@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Invoice Details</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .container {
+            width: 60%;
+            margin: 0 auto;
+            padding-top: 50px;
+        }
+        .invoice-details {
+            background-color: white;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .invoice-details p {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .print-btn {
+            padding: 10px 20px;
+            background-color: #51b1ea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .print-btn:hover {
+            background-color: #4297d3;
+        }
+    </style>
+</head>
+<body><div id="header-wrapper">
+    <div class="container">
+        <!-- Header -->
+        <header id="header">
+            <div class="inner">
+                <h1><a href="index.html" id="logo">Blue Ryno</a></h1>
+                <nav id="nav">
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="admin_dashboard.html">Back</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+    </div>
+</div>
+
+<div class="container">
+    <h2>Invoice Details</h2>
+    <div class="invoice-details" id="invoice-details">
+        <!-- Invoice details will be dynamically populated here -->
+    </div>
+    <button class="print-btn" onclick="printInvoice()">Print Invoice</button>
+</div>
+
+<script>
+    // Function to get query parameter from the URL
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    // Get the InvoiceID from the URL
+    const invoiceId = getQueryParam('invoiceId');
+
+    // Fetch invoice data from the backend using the InvoiceID
+    fetch(`http://localhost:3001/invoices/${invoiceId}`)
+        .then(response => response.json())
+        .then(invoice => {
+            const invoiceDetails = document.getElementById('invoice-details');
+            invoiceDetails.innerHTML = `
+                <p><strong>Invoice ID:</strong> ${invoice.InvoiceID}</p>
+                <p><strong>Quote ID:</strong> ${invoice.QuoteID}</p>
+                <p><strong>Invoice Date:</strong> ${new Date(invoice.InvoiceDate).toLocaleDateString()}</p>
+                <p><strong>Due Date:</strong> ${new Date(invoice.DueDate).toLocaleDateString()}</p>
+                <p><strong>Total Amount:</strong> ${invoice.TotalAmount}</p>
+                <p><strong>Paid Amount:</strong> ${invoice.PaidAmount}</p>
+                <p><strong>Payment Status:</strong> ${invoice.PaymentStatus}</p>
+                <p><strong>Payment Method:</strong> ${invoice.PaymentMethod}</p>
+            `;
+        })
+        .catch(error => {
+            console.error('Error fetching invoice:', error);
+        });
+
+    // Print the invoice details
+    function printInvoice() {
+        const invoiceContent = document.getElementById('invoice-details').innerHTML;
+        const originalContent = document.body.innerHTML;
+
+        document.body.innerHTML = `
+            <html>
+            <head><title>Print Invoice</title></head>
+            <body>${invoiceContent}</body>
+            </html>
+        `;
+
+        window.print();
+
+        document.body.innerHTML = originalContent;
+    }
+</script>
+
+</body>
+</html>

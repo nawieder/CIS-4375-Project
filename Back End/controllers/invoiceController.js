@@ -12,6 +12,44 @@ exports.getAllInvoices = (req, res) => {
   });
 };
 
+// GET all new (completed) invoices
+exports.getAllOldInvoices = (req, res) => {
+  const sql = 'SELECT * FROM Invoice JOIN Quotes ON Invoice.QuoteID = Quotes.QuoteID WHERE Status IN ("Completed")';
+  
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching invoices:', err);
+      return res.status(500).send('Error fetching invoices');
+    }
+
+    if (results.length === 0) {
+      // If no invoices are found
+      return res.status(404).send('No completed invoices found');
+    }
+
+    // If invoices are found, return them as JSON
+    res.json(results);
+  });
+};
+// GET all new (completed) invoices
+exports.getAllNewInvoices = (req, res) => {
+  const sql = 'SELECT * FROM Invoice JOIN Quotes ON Invoice.QuoteID = Quotes.QuoteID WHERE Status NOT IN ("Completed")';
+  
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching invoices:', err);
+      return res.status(500).send('Error fetching invoices');
+    }
+
+    if (results.length === 0) {
+      // If no invoices are found
+      return res.status(404).send('No completed invoices found');
+    }
+
+    // If invoices are found, return them as JSON
+    res.json(results);
+  });
+};
 // GET a specific invoice by InvoiceID
 exports.getInvoiceById = (req, res) => {
   const invoiceId = req.params.id;

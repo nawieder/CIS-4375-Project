@@ -1,78 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    
-    <title>Old Invoices - Blue Rhyno</title>
+    <title>Completed Jobs - Blue Rhyno</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="stylesheet" href="assets/css/main.css" />
-    
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
         }
-        .login-container {
-            width: 100%;
-            max-width: 400px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .input-group {
-            margin-bottom: 15px;
-        }
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .input-group input[type="text"],
-        .input-group input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        .login-btn {
-            width: 100%;
-            padding: 10px;
-            background-color: #51b1ea;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .login-btn:hover {
-            background-color: #4297d3;
-        }
-        .error-message {
-            color: red;
-            text-align: center;
-            margin-top: 10px;
-        }
-        .links {
-            text-align: center;
-            margin-top: 15px;
-        }
-        .links a {
-            color: #51b1ea;
-            text-decoration: none;
-        }
-        .links a:hover {
-            text-decoration: underline;
-        }
         .container {
             width: 80%;
             margin: 0 auto;
             padding-top: 50px;
+        }
+        h2 {
+            margin-top: 40px;
         }
         table {
             width: 100%;
@@ -88,10 +32,25 @@
         }
         th {
             background-color: #f4f4f4;
-            font-weight: bold; /* Make table headers bold */
+            font-weight: bold;
+            cursor: pointer;
         }
         td {
-            background-color: white; /* Set table body background to white */
+            background-color: white;
+        }
+        .print-btn {
+            position: absolute;
+            right: 5%;
+            top: 5%;
+            padding: 10px 20px;
+            background-color: #51b1ea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .print-btn:hover {
+            background-color: #4297d3;
         }
     </style>
 </head>
@@ -101,10 +60,7 @@
             <!-- Header -->
             <header id="header">
                 <div class="inner">
-                    <!-- Logo -->
                     <h1><a href="index.html" id="logo">Blue Rhyno</a></h1>
-
-                    <!-- Nav -->
                     <nav id="nav">
                         <ul>
                             <li><a href="index.html">Home</a></li>
@@ -115,40 +71,163 @@
             </header>
         </div>
     </div>
+    
+    
+
+    <!-- Completed Jobs Section -->
     <div class="container">
-        <h2>Old Invoices</h2>
+        <h2>New Invoices</h2>
+        <button class="print-btn" onclick="window.print()">Print Invoices</button>
         <table>
             <thead>
                 <tr>
-                    <th>Invoice ID</th>
-                    <th>Customer ID</th>
-                    <th>Employee ID</th>
-                    <th>Quote Date</th>
-                    <th>End Date</th>
-                    <th>Total Amount</th>
-                    <th>Project Total Cost</th>
-                    <th>Status</th>
-                    <th>Payment Status</th>
-                    <th>Payment Method</th>
+                    <th onclick="sortTable(0)">Invoice ID</th>
+                    <th onclick="sortTable(1)">Quote ID</th>
+                    <th onclick="sortTable(2)">Invoice Date</th>
+                    <th onclick="sortTable(3)">Due Date</th>
+                    <th onclick="sortTable(4)">Total Amount</th>
+                    <th onclick="sortTable(5)">Paid Amount</th>
+                    <th onclick="sortTable(6)">Payment Status</th>
+                    <th onclick="sortTable(7)">Payment Method</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for invoice in invoices %}
-                <tr>
-                    <td>{{ invoice[0] }}</td>
-                    <td>{{ invoice[1] }}</td>
-                    <td>{{ invoice[2] }}</td>
-                    <td>{{ invoice[3] }}</td>
-                    <td>{{ invoice[4] }}</td>
-                    <td>{{ invoice[5] }}</td>
-                    <td>{{ invoice[6] }}</td>
-                    <td>{{ invoice[7] }}</td>
-                    <td>{{ invoice[8] }}</td>
-                    <td>{{ invoice[9] }}</td>
-                </tr>
-                {% endfor %}
+            <tbody id="invoice-table-body">
+                <!-- Invoices will be dynamically populated here -->
             </tbody>
         </table>
+    
+        <div class="pagination" id="pagination-controls">
+            <!-- Pagination buttons will be dynamically populated here -->
+        </div>
     </div>
+
+    <script>
+        let invoices = [];
+        let currentPage = 1;
+        const rowsPerPage = 10;
+    
+        // Fetch invoice data from your backend
+        fetch('http://localhost:3001/invoices/old')
+            .then(response => response.json())
+            .then(data => {
+                invoices = data;
+                displayInvoices();
+                setupPagination();
+            })
+            .catch(error => {
+                console.error('Error fetching invoices:', error);
+            });
+    
+        function displayInvoices() {
+            const tableBody = document.getElementById('invoice-table-body');
+            tableBody.innerHTML = '';
+    
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const paginatedInvoices = invoices.slice(start, end);
+    
+            paginatedInvoices.forEach(invoice => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td onclick="showInvoiceDetails(${invoice.InvoiceID})">${invoice.InvoiceID}</td>
+                    <td>${invoice.QuoteID}</td>
+                    <td>${new Date(invoice.InvoiceDate).toLocaleDateString()}</td>
+                    <td>${new Date(invoice.DueDate).toLocaleDateString()}</td>
+                    <td>${invoice.TotalAmount}</td>
+                    <td>${invoice.PaidAmount}</td>
+                    <td>${invoice.PaymentStatus}</td>
+                    <td>${invoice.PaymentMethod}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+    
+        function setupPagination() {
+            const pagination = document.getElementById('pagination-controls');
+            pagination.innerHTML = '';
+    
+            const totalPages = Math.ceil(invoices.length / rowsPerPage);
+            const rangeStart = (currentPage - 1) * rowsPerPage + 1;
+            const rangeEnd = Math.min(currentPage * rowsPerPage, invoices.length);
+    
+            pagination.innerHTML = `
+                <button onclick="prevPage()"> &lt; </button>
+                <span>${rangeStart}-${rangeEnd}</span>
+                <button onclick="nextPage()"> &gt; </button>
+            `;
+        }
+    
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                displayInvoices();
+                setupPagination();
+            }
+        }
+    
+        function nextPage() {
+            const totalPages = Math.ceil(invoices.length / rowsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                displayInvoices();
+                setupPagination();
+            }
+        }
+    
+        function sortTable(columnIndex) {
+            invoices.sort((a, b) => {
+                let valA = Object.values(a)[columnIndex];
+                let valB = Object.values(b)[columnIndex];
+    
+                if (typeof valA === 'string') valA = valA.toLowerCase();
+                if (typeof valB === 'string') valB = valB.toLowerCase();
+    
+                return valA > valB ? 1 : -1;
+            });
+            displayInvoices();
+        }
+    
+        function showInvoiceDetails(invoiceId) {
+            window.location.href = `invoice.html?invoiceId=${invoiceId}`;
+        }
+        
+        function closePopup() {
+            document.getElementById('invoice-popup').style.display = 'none';
+        }
+    
+        function printInvoice() {
+            const popupContent = document.getElementById('popup-content').innerHTML;
+            const originalContent = document.body.innerHTML;
+    
+            document.body.innerHTML = `
+                <html>
+                <head><title>Print Invoice</title></head>
+                <body>${popupContent}</body>
+                </html>
+            `;
+    
+            window.print();
+    
+            document.body.innerHTML = originalContent;
+        }
+    
+        // Ensure only the table gets printed
+        function printTable() {
+            const table = document.querySelector('table').outerHTML;
+            const originalContent = document.body.innerHTML;
+    
+            document.body.innerHTML = `
+                <html>
+                <head><title>Print Invoices</title></head>
+                <body>${table}</body>
+                </html>
+            `;
+    
+            window.print();
+    
+            document.body.innerHTML = originalContent;
+        }
+    </script>
+    
 </body>
 </html>
