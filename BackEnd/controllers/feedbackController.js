@@ -1,4 +1,4 @@
-// Back End/controllers/feedbackController.js
+// BackEnd/controllers/feedbackController.js
 const db = require('../config/db');
 
 // GET all feedback

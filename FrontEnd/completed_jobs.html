@@ -199,7 +199,7 @@
         paginatedInvoices.forEach(invoice => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td onclick="showInvoiceDetails(${invoice.InvoiceID})">${invoice.InvoiceID}</td>
+                    <td class="invoice-number" onclick="showInvoiceDetails(${invoice.InvoiceID})">${invoice.InvoiceID}</td>
                 <td>${invoice.QuoteID}</td>
                 
                 <td>${invoice.CustomerName}</td>
@@ -295,7 +295,6 @@
             <body>${table}</body>
             </html>
         `;
-
         window.print();
 
         document.body.innerHTML = originalContent;

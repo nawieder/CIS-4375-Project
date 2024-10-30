@@ -1,4 +1,4 @@
-// Back End/controllers/inventoryController.js
+// BackEnd/controllers/inventoryController.js
 const db = require('../config/db');
 
 // GET all inventory items
