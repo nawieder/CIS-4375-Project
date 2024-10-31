@@ -23,10 +23,11 @@ app.use(bodyParser.json());
 
 // MySQL connection
 const db = mysql.createConnection({
-  host: 'bluerynodb.cj02o08agyaa.us-east-2.rds.amazonaws.com',
+  host: 'bluerynodb-restored.cj02o08agyaa.us-east-2.rds.amazonaws.com',
   user: 'admin',
   password: 'admin123',
   database: 'BlueRynoProjectDB',
+  
 });
 
 // Check connection
