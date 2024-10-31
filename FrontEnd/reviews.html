@@ -1,10 +1,30 @@
 <!DOCTYPE HTML>
 <html>
     <head>
-        <title>Customer Reviews</title>
+        <title>Submit Customer Review</title>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
         <link rel="stylesheet" href="assets/css/main.css" />
+        <style>
+            .rating {
+                display: flex;
+                flex-direction: row-reverse;
+                justify-content: center;
+            }
+            .rating input {
+                display: none;
+            }
+            .rating label {
+                font-size: 2em;
+                color: #FFD700;
+                cursor: pointer;
+            }
+            .rating label:hover,
+            .rating label:hover ~ label,
+            .rating input:checked ~ label {
+                color: #FFED85;
+            }
+        </style>
     </head>
     <body class="right-sidebar is-preload">
         <div id="page-wrapper">
@@ -49,30 +69,40 @@
                 <div id="content">
                 <section class="box">
                 <header>
-                <h2>Customer Reviews</h2>
+                <h2>Submit Customer Review</h2>
                 </header>
                 <div class="content">
                 <form action="submit_review.php" method="post">
-                    <div class="row gtr-50">
-                    <div class="col-6 col-12-small">
-                    <input type="text" name="invoice_number" id="invoice_number" placeholder="Invoice Number" required />
+                    <div class="row gtr-60">
+                    <!-- <div class="col-6 col-12-small">
+                    <input type="text" name="feedback_id" id="feedback_id" placeholder="Feedback ID" required />
                     </div>
                     <div class="col-6 col-12-small">
-                    <input type="date" name="date_created" id="date_created" required />
+                    <input type="text" name="customer_id" id="customer_id" placeholder="Customer ID" required />
+                    </div> -->
+                    <div class="col-6 col-12-small">
+                        <input type="text" name="quote_id" id="quote_id" placeholder="Quote" required />
                     </div>
                     <div class="col-6 col-12-small">
-                    <input type="text" name="first_name" id="first_name" placeholder="First Name" required />
-                    </div>
-                    <div class="col-6 col-12-small">
-                    <input type="text" name="last_name" id="last_name" placeholder="Last Name" required />
+                        <input type="date" name="feedback_date" id="feedback_date" required />
                     </div>
                     <div class="col-12">
-                    <textarea name="review" id="review" placeholder="Your Review" rows="6" required></textarea>
+                        <textarea name="comments" id="comments" placeholder="Your Comments" rows="6" required></textarea>
                     </div>
                     <div class="col-12">
-                    <ul class="actions">
-                    <li><input type="submit" value="Submit Review" class="primary" /></li>
-                    </ul>
+                        <label for="rating">Rating:</label>
+                        <div class="rating" style="display: inline-flex;">
+                            <input type="radio" name="rating" id="star5" value="5" required /><label for="star5" title="5 stars">&#9733;</label>
+                            <input type="radio" name="rating" id="star4" value="4" required /><label for="star4" title="4 stars">&#9733;</label>
+                            <input type="radio" name="rating" id="star3" value="3" required /><label for="star3" title="3 stars">&#9733;</label>
+                            <input type="radio" name="rating" id="star2" value="2" required /><label for="star2" title="2 stars">&#9733;</label>
+                            <input type="radio" name="rating" id="star1" value="1" required /><label for="star1" title="1 star">&#9733;</label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <ul class="actions">
+                            <li><input type="submit" value="Submit Review" class="primary" /></li>
+                        </ul>
                     </div>
                     </div>
                 </form>
@@ -94,7 +124,6 @@
         <script src="assets/js/util.js"></script>
         <script src="assets/js/main.js"></script>
 
-    </body>
     <!-- Footer Wrapper -->
     <div id="footer-wrapper">
         <footer id="footer" class="container">
@@ -136,11 +165,13 @@
                         <ul class="menu">
                             <li>&copy; Untitled. All rights reserved</li>
                             <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
-                            <li><a href="https://www.freepik.com/free-photo/vertical-closeup-shot-metal-fence-sidewalk_16224746.htm#query=vertical%20fence&position=2&from_view=keyword&track=ais_hybrid&uuid=10c2de75-fd8b-49ec-8595-4f81ba639c61">Image by wirestock</a> on Freepik</li>
+                            <li><a href="https://www.freepik.com/free-photo/vertical-closeup-shot-metal-fence-sidewalk_16224746.htm#query=vertical%20fence&position=2&from_view=keyword&track=ais_hybrid&uuid=10c2de75-fd8b-49ec-8595-4f81ba639c61">Image by Wirestock</a> on Freepik</li> <!-- spell-checker: disable-line -->
                         </ul>
                     </div>
                 </div>
             </div>
         </footer>
     </div>
+        </div>
+    </body>
 </html>
