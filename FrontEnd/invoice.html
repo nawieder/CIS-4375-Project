@@ -1,3 +1,4 @@
+<?php include('header.php'); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,7 +41,8 @@
         }
     </style>
 </head>
-<body><div id="header-wrapper">
+<body>
+<div id="header-wrapper">
     <div class="container">
         <!-- Header -->
         <header id="header">
@@ -59,11 +61,29 @@
 
 <div class="container">
     <h2>Invoice Details</h2>
+    
+    <!-- Include Company Logo (hidden by default) -->
+    <img id="company-logo" src="images/BlueRynoLogo.png" alt="Blue Ryno Logo" class="print-logo" style="width:100%; height:auto; max-width: 150px;">
+
     <div class="invoice-details" id="invoice-details">
         <!-- Invoice details will be dynamically populated here -->
     </div>
     <button class="print-btn" onclick="printInvoice()">Print Invoice</button>
 </div>
+
+<style>
+    /* Hide logo by default */
+    .print-logo {
+        display: none;
+    }
+
+    /* Show logo only when printing */
+    @media print {
+        .print-logo {
+            display: block;
+        }
+    }
+</style>
 
 <script>
     // Function to get query parameter from the URL
@@ -95,23 +115,59 @@
             console.error('Error fetching invoice:', error);
         });
 
-    // Print the invoice details
-    function printInvoice() {
-        const invoiceContent = document.getElementById('invoice-details').innerHTML;
-        const originalContent = document.body.innerHTML;
-
-        document.body.innerHTML = `
-            <html>
-            <head><title>Print Invoice</title></head>
-            <body>${invoiceContent}</body>
-            </html>
-        `;
-
-        window.print();
-
-        document.body.innerHTML = originalContent;
-    }
-</script>
+        function printInvoice() {
+            const invoiceContent = document.getElementById('invoice-details').innerHTML;
+            const logoContent = document.getElementById('company-logo').outerHTML; // Get the logo HTML
+            const originalContent = document.body.innerHTML;
+    
+            // Company details to include in print
+            const companyInfo = `
+                <div class="company-info" style="display: flex; align-items: center; margin-bottom: 20px;">
+                    ${logoContent}
+                    <div class="info" style="margin-left: 20px;">
+                        <h1 style="margin: 0;">Blue Ryno Fencing</h1>
+                        <p style="margin: 0;">Houston, TX</p>
+                        <p style="margin: 0;">USA</p>
+                        <p style="margin: 0;">Phone: (281) 914-0946</p>
+                        <p style="margin: 0;">Email: Bluerhinofence@icloud.com</p>
+                    </div>
+                </div>
+            `;
+    
+            // Thank you message
+            const thankYouMessage = `
+                <div class="thank-you-message">
+                    <p>Thank you for your business!</p>
+                </div>
+            `;
+        
+            document.body.innerHTML = `
+                <html>
+                <head>
+                    <title>Print Invoice</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                        }
+                        .invoice-details {
+                            margin-top: 20px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${companyInfo} <!-- Include company information for printing -->
+                    <h2>Invoice Details</h2>
+                    <div class="invoice-details">${invoiceContent}</div>
+                    ${thankYouMessage} <!-- Include thank you message -->
+                </body>
+                </html>
+            `;
+        
+            window.print();
+        
+            document.body.innerHTML = originalContent; // Restore original content
+        }
+    </script>
 
 </body>
 </html>

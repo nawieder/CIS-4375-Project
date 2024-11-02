@@ -1,3 +1,4 @@
+<?php include('header.php'); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -148,7 +149,6 @@
                 <tr>
                     <th>Select</th>
                     <th onclick="sortTable(0)">quote ID</th>
-                    <th onclick="sortTable(1)">Customer ID </th>
                     <th onclick="sortTable(2)">Customer Name</th>
                     <th onclick="sortTable(3)">Address</th>
                     <th onclick="sortTable(4)">Quote Date</th>
@@ -197,7 +197,6 @@
                         <div class="radio-button" onclick="selectquote(${quote.QuoteID}, this)"></div>
                     </td>
                     <td class="quote-number" onclick="showquoteDetails(${quote.QuoteID})">${quote.QuoteID}</td>
-                    <td>${quote.CustomerID}</td>
                     <td>${quote.CustomerName}</td>
                     <td>${quote.Address}</td>
                     <td>${new Date(quote.QuoteDate).toLocaleDateString()}</td>
