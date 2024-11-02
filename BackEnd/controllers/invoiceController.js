@@ -1,4 +1,43 @@
 const db = require('../config/db');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+// Helper function to create Stripe Checkout session
+async function createStripeCheckoutSession(invoice, customer) {
+  try {
+      const session = await stripe.checkout.sessions.create({
+          payment_method_types: ['card'],
+          mode: 'payment',
+          customer_email: customer.Email,
+          line_items: [{
+              price_data: {
+                  currency: 'usd',
+                  product_data: {
+                      name: `Blue Rhyno Fencing Invoice #${invoice.InvoiceID}`,
+                      description: 'Fencing Services',
+                      metadata: {
+                          invoice_id: invoice.InvoiceID,
+                          quote_id: invoice.QuoteID
+                      }
+                  },
+                  unit_amount: Math.round(invoice.TotalAmount * 100), // Convert to cents
+              },
+              quantity: 1
+          }],
+          metadata: {
+              invoice_id: invoice.InvoiceID,
+              quote_id: invoice.QuoteID
+          },
+          success_url: `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${process.env.FRONTEND_URL}/payment-cancel`,
+      });
+
+      return session.url;
+  } catch (error) {
+      console.error('Error creating checkout session:', error);
+      throw error;
+  }
+}
+
 
 // GET all invoices
 exports.getAllInvoices = (req, res) => {
@@ -99,17 +138,66 @@ exports.getInvoiceById = (req, res) => {
   });
 };
 
-// POST a new invoice
-exports.createInvoice = (req, res) => {
-  const newInvoice = req.body;
-  const sql = 'INSERT INTO Invoice SET ?';
-  db.query(sql, newInvoice, (err, result) => {
-    if (err) {
-      console.error('Error adding invoice:', err);
-      return res.status(500).send('Error adding invoice');
+// Modified createInvoice to use Stripe Checkout
+exports.createInvoice = async (req, res) => {
+    const connection = await db.promise().getConnection();
+    try {
+        await connection.beginTransaction();
+
+        const newInvoice = req.body;
+
+        // Get customer information
+        const [customerResult] = await connection.query(`
+            SELECT c.* 
+            FROM Customers c
+            JOIN Quotes q ON q.CustomerID = c.CustomerID
+            WHERE q.QuoteID = ?
+        `, [newInvoice.QuoteID]);
+
+        if (customerResult.length === 0) {
+            throw new Error('Customer not found');
+        }
+
+        // Create invoice in database
+        const [result] = await connection.query(
+            'INSERT INTO Invoice (QuoteID, InvoiceDate, DueDate, TotalAmount, PaymentStatus) VALUES (?, ?, ?, ?, ?)',
+            [newInvoice.QuoteID, newInvoice.InvoiceDate, newInvoice.DueDate, newInvoice.TotalAmount, 'pending']
+        );
+
+        const invoiceId = result.insertId;
+
+        // Create Stripe Checkout session
+        const paymentLink = await createStripeCheckoutSession(
+            { ...newInvoice, InvoiceID: invoiceId },
+            customerResult[0]
+        );
+
+        // Update invoice with payment link
+        await connection.query(
+            'UPDATE Invoice SET PaymentLink = ? WHERE InvoiceID = ?',
+            [paymentLink, invoiceId]
+        );
+
+        await connection.commit();
+
+        res.status(200).json({
+            success: true,
+            message: 'Invoice created successfully',
+            invoiceId: invoiceId,
+            paymentLink: paymentLink
+        });
+
+    } catch (error) {
+        await connection.rollback();
+        console.error('Error in createInvoice:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to create invoice',
+            error: error.message
+        });
+    } finally {
+        connection.release();
     }
-    res.json({ message: 'Invoice created', invoiceId: result.insertId });
-  });
 };
 
 // PUT to update an invoice
@@ -150,4 +238,42 @@ exports.deleteInvoice = (req, res) => {
     }
     res.send('Invoice soft-deleted');
   });
+};
+
+// Handle Stripe webhook for payment status updates
+exports.handleStripeWebhook = async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    let event;
+
+    try {
+        event = stripe.webhooks.constructEvent(
+            req.body,
+            sig,
+            process.env.STRIPE_WEBHOOK_SECRET
+        );
+    } catch (err) {
+        console.error('Webhook signature verification failed:', err.message);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    try {
+        if (event.type === 'checkout.session.completed') {
+            const session = event.data.object;
+            
+            // Update invoice payment status
+            await db.query(
+                `UPDATE Invoice 
+                 SET PaymentStatus = ?, 
+                     PaidAmount = ?, 
+                     PaymentDate = NOW() 
+                 WHERE InvoiceID = ?`,
+                ['paid', session.amount_total / 100, session.metadata.invoice_id]
+            );
+        }
+
+        res.json({received: true});
+    } catch (err) {
+        console.error('Error processing webhook:', err);
+        res.status(500).send(`Webhook processing failed: ${err.message}`);
+    }
 };
