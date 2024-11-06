@@ -1,5 +1,12 @@
+require('dotenv').config({path: '../.env'});
 const db = require('../config/db');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || '');
+
+// Add error handling for missing stripe key
+if (!process.env.STRIPE_SECRET_KEY) {
+  console.error('Warning: Stripe secret key is missing in environment variables.');
+}
+
 
 // Helper function to create Stripe Checkout session
 async function createStripeCheckoutSession(invoice, customer) {

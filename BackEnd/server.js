@@ -5,7 +5,8 @@ const cors = require('cors');
 const mysql = require('mysql2');
 const path = require('path');
 const session = require('express-session');
-
+require('dotenv').config();
+const sessionTimeout = require('./middleware/sessionTimeout');
 const adminRoutes = require('./routes/adminRoutes');
 const vendorRoutes = require('./routes/vendorRoutes');
 const customerRoutes = require('./routes/customerRoutes');
@@ -29,17 +30,29 @@ app.use('/assets', express.static(path.join(__dirname, '../FrontEnd/assets')));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  name: process.env.SESSION_NAME,
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 3600000, // 1 hour
+    maxAge: parseInt(process.env.SESSION_LIFETIME),
+    httpOnly: true,
+    sameSite: 'strict',
   }
 }));
 
+// Add session check middleware for admin routes
+const checkAdminSession = (req, res, next) => {
+  if (!req.session || !req.session.isAdmin) {
+    return res.redirect('/login');
+  }
+  next();
+};
+
+
 //Instead of individual admin routes, use the router
-app.use('/admin', adminRoutes);
+app.use('/admin', sessionTimeout, checkAdminSession, adminRoutes);
 
 //Basic route
 app.get('/', (req, res) => {
@@ -71,18 +84,6 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, '../FrontEnd/login.html'));
 });
 
-app.get('/admin/dashboard', (req, res) => {
-  res.sendFile(path.join(__dirname, '../FrontEnd/admin_dashboard.html'));
-});
-
-app.get('/admin/active-jobs', (req, res) => {
-  res.sendFile(path.join(__dirname, '../FrontEnd/active_jobs.html'));
-});
-
-app.get('/admin/completed-jobs', (req, res) => {
-  res.sendFile(path.join(__dirname, '../FrontEnd/completed_jobs.html'));
-});
-
 app.get('/job-status', (req, res) => {
   res.sendFile(path.join(__dirname, '../FrontEnd/jobStatus.html'));
 });
@@ -97,10 +98,6 @@ app.get('/faq', (req, res) => {
 
 app.get('/invoice', (req, res) => {
   res.sendFile(path.join(__dirname, '../FrontEnd/invoice.html'));
-});
-
-app.get('admin/update_invoice', (req, res) => {
-  res.sendFile(path.join(__dirname, '../FrontEnd/update_invoice.html'));
 });
 
 app.get('/reviews', (req, res) => {
