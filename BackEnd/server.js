@@ -141,7 +141,7 @@ app.use((err, req, res, next) => {
 // Start the server
 
 app.listen(port, '0.0.0.0', () => {
-  console.log(`Server is running on http://54.91.237.45:${port}`);
+  console.log(`Server is running on http://52.91.3.41:${port}`);
 });
 // app.listen(port, () => {
 //   console.log(`Server is running on http://localhost:${port}`);
